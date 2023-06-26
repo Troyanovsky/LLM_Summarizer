@@ -4,7 +4,7 @@
 Too Lazy To View is a web application that allows users to summarize content they are too lazy to read or view. The application supports both text and audio/video input, with the ability to transcribe audio files using Whisper. Summaries are generated using OpenAI's GPT-3.5 model. For very long text, summaries will be generated for each segment, and the overall summary will be generated from the concatenation of the segment summaries.
 
 ## Getting Started
-To use the application, simply open the index.html file in your browser.
+To use the application, simply open the index.html file in your browser or visit https://troyanovsky.github.io/LLM_Summarizer/
 
 ## Prerequisites
 The following resources are required to run the application:
