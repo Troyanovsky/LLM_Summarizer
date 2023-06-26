@@ -124,7 +124,7 @@
                     }));
 
                     // Concatenate segment summaries and get overall summary
-                    const overall_summary = await this.summarize_short_text(summaries.join(' '));
+                    const overall_summary = await this.summarizeLongText(summaries.join(' '));
 
                     return overall_summary;
                 },
