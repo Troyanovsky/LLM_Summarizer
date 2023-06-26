@@ -16,11 +16,11 @@
             <p class="py-0 my-0">Summarize content that you're too lazy to view</p>
             <div class="flex justify-center items-center w-full">
                 <label for="file-upload"
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose audio
                     file</label>
                 <input type="file" id="file-upload" class="hidden" @change="onFileChange" accept=".wav,.mp3">
                 <button class="px-4 py-2 bg-green-500 text-white rounded-lg ml-4" @click="transcribeAudio"
-                    :disabled="!chosenFilePath">Load audio content</button>
+                    :disabled="!chosenFilePath">Transcribe audio</button>
             </div>
             <textarea class="w-3/4 h-96 border-gray-300 border-2 rounded-md p-2 resize-none" v-model="rawText"
                 placeholder="Copy/paste or load transcribed audio text here"></textarea>
@@ -33,36 +33,54 @@
     </div>
 
     <!-- Vue3 app configuration -->
-    <script>
+    <script type="module">
+
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.3.0';
+
         const app = Vue.createApp({
             data() {
                 return {
                     chosenFilePath: '',
+                    chosenFileName: '',
                     rawText: '',
                     openai_key: '',
+                    transcription: ''
                 }
             },
             methods: {
                 onFileChange(event) {
-                    this.chosenFilePath = event.target.files[0].path;
+                    const selectedFile = event.target.files[0];
+                    console.log(selectedFile)
+                    this.chosenFilePath = URL.createObjectURL(selectedFile);
+                    this.chosenFileName = selectedFile.name;
+                    this.rawText = 'File chosen: ' + this.chosenFileName;
                 },
-                transcribeAudio() {
-                    if (this.chosenFilePath && (this.chosenFilePath.endsWith('.wav') || this.chosenFilePath.endsWith('.mp3'))) {
-                        // TODO: Implement audio to text transcription
+                async transcribeAudio() {
+                    console.log(this.chosenFilePath)
+                    const supportedExtensions = ['.wav', '.mp3', '.mp4', '.m4a', '.webm', '.MPEG'];
+                    if (this.chosenFilePath && supportedExtensions.some(ext => this.chosenFileName.endsWith(ext))) {
+                        try {
+                            let url = this.chosenFilePath;
+                            console.log(url);
+                            this.rawText = 'Transcribing audio...This may take a while, especially for long audio files or the first time (needs to download the whisper model.)';
+                            let transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny');
+                            let output = await transcriber(url);
+                            this.transcription = output.text;
+                            if (this.transcription) {
+                                this.rawText = this.transcription;
+                            }
+                        }
+                        catch (error) {
+                            console.log(error);
+                            this.rawText = 'Error transcribing audio. Please try again or see console for detail.';
+                        }
                     } else {
                         alert('Please choose a valid audio file.');
                     }
                 },
                 async summarizeContent() {
-                    if (this.rawText.startsWith('http')) {
-                        await this.summarizeWebpage(this.rawText);
-                    } else {
-                        const summary = await this.summarizeLongText(this.rawText);
-                        this.rawText = summary;
-                    }
-                },
-                summarizeWebpage(url) {
-                    // TODO: Implement webpage summarization
+                    const summary = await this.summarizeLongText(this.rawText);
+                    this.rawText = summary;
                 },
                 async summarizeLongText(text) {
                     const words_per_segment = 1500; // Number of words in each segment
@@ -130,7 +148,7 @@
                             retries++;
 
                             if (retries > maxRetries) {
-                                return "Summary failed.";
+                                return "Summary failed. See console for detail.";
                             }
 
                             // Wait for 3 seconds before retrying
