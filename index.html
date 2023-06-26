@@ -43,7 +43,8 @@
                     chosenFileName: '',
                     rawText: '',
                     openai_key: '',
-                    transcription: ''
+                    transcription: '',
+                    transcriber: null,
                 }
             },
             methods: {
@@ -69,9 +70,13 @@
                         try {
                             let url = this.chosenFilePath;
                             console.log(url);
-                            this.rawText = 'Transcribing...This may take a while, especially for long audio files or the first time (needs to download the whisper model.)';
-                            let transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny');
-                            let output = await transcriber(url);
+                            this.rawText = 'Loading model...This may take a while for the first time downloading the Whisper model.'
+                            if (!this.transcriber) {
+                                let transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny');
+                                this.transcriber = transcriber;
+                            }
+                            this.rawText = 'Transcribing...This may take a while especially for long audio files.';
+                            let output = await this.transcriber(url,{ chunk_length_s: 30 });
                             this.transcription = output.text;
                             if (this.transcription) {
                                 this.rawText = this.transcription;
