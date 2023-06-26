@@ -16,9 +16,8 @@
             <p class="py-0 my-0">Summarize content that you're too lazy to view</p>
             <div class="flex justify-center items-center w-full">
                 <label for="file-upload"
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose audio
-                    file</label>
-                <input type="file" id="file-upload" class="hidden" @change="onFileChange" accept=".wav,.mp3">
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose file</label>
+                <input type="file" id="file-upload" class="hidden" @change="onFileChange" accept=".wav,.mp3,.mp3,.m4a,.webm,.MPEG,.txt">
                 <button class="px-4 py-2 bg-green-500 text-white rounded-lg ml-4" @click="transcribeAudio"
                     :disabled="!chosenFilePath">Transcribe audio</button>
             </div>
@@ -53,7 +52,15 @@
                     console.log(selectedFile)
                     this.chosenFilePath = URL.createObjectURL(selectedFile);
                     this.chosenFileName = selectedFile.name;
-                    this.rawText = 'File chosen: ' + this.chosenFileName;
+                    if (selectedFile.type.match('text.*')) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            this.rawText = event.target.result;
+                        };
+                        reader.readAsText(selectedFile);
+                    } else {
+                        this.rawText = 'File chosen: ' + this.chosenFileName;
+                    }
                 },
                 async transcribeAudio() {
                     console.log(this.chosenFilePath)
@@ -62,7 +69,7 @@
                         try {
                             let url = this.chosenFilePath;
                             console.log(url);
-                            this.rawText = 'Transcribing audio...This may take a while, especially for long audio files or the first time (needs to download the whisper model.)';
+                            this.rawText = 'Transcribing...This may take a while, especially for long audio files or the first time (needs to download the whisper model.)';
                             let transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny');
                             let output = await transcriber(url);
                             this.transcription = output.text;
@@ -75,7 +82,7 @@
                             this.rawText = 'Error transcribing audio. Please try again or see console for detail.';
                         }
                     } else {
-                        alert('Please choose a valid audio file.');
+                        alert('Please choose a valid audio file for transcription.');
                     }
                 },
                 async summarizeContent() {
