@@ -9,9 +9,9 @@ To use the application, simply open the index.html file in your browser.
 ## Prerequisites
 The following resources are required to run the application:
 
-A modern web browser (tested on Chrome)
-An internet connection (for loading external libraries and Whisper model)
-An OpenAI API key (to generate summaries)
+A modern web browser (tested on Chrome)  
+An internet connection (for loading external libraries and Whisper model)  
+An OpenAI API key (to generate summaries)  
 
 ## Usage
 Upon opening the index page, you can select a file to upload for transcription by clicking the "Choose file" button. If the file is a text-based file, the content will be loaded to the text area; if the file is an audio file, you can click the "Transcribe audio" button to initiate the transcription process. Transcription may take some time depending on the length of the audio file. For the first time transcribing the audio, the application will use the transformer.js library to download the Whisper-tiny model to transcribe your audio. Subsequent transcription will be much faster. All transcription is done locally.
@@ -19,10 +19,10 @@ Upon opening the index page, you can select a file to upload for transcription b
 Once the transcription process is complete, the raw text will be displayed in the text area below the buttons. Users can then enter their OpenAI API key in the input field provided and click the "Summarize" button to generate a summary of the text.
 
 ## Built With
-Vue.js - JavaScript framework used for building user interface
-Tailwind CSS - CSS framework used for styling
-transformers.js - JavaScript library used for machine learning-based speech-to-text transcription
-OpenAI GPT-3.5 model - LLM for generating summaries
+Vue.js - JavaScript framework used for building user interface  
+Tailwind CSS - CSS framework used for styling  
+transformers.js - JavaScript library used for machine learning-based speech-to-text transcription  
+OpenAI GPT-3.5 model - LLM for generating summaries  
 
 ## Author
 Troy (Guodong) Zhao - https://github.com/Troyanovsky
