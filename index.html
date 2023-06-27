@@ -93,7 +93,9 @@
                     }
                 },
                 async summarizeContent() {
-                    const summary = await this.summarizeLongText(this.rawText);
+                    const textToSum = this.rawText;
+                    this.rawText = 'Summarizing...This may take a while for long text.';
+                    const summary = await this.summarizeLongText(textToSum);
                     this.rawText = summary;
                 },
                 isAlphabetic(str) {
@@ -103,7 +105,7 @@
                     } else {
                         substr = str.substring(0, 5);
                     }
-                    
+
                     let count = 0;
                     for (let i = 0; i < substr.length; i++) {
                         // Check if the character is alphabetic
@@ -135,6 +137,7 @@
                         return summary;
                     }
 
+                    this.rawText = 'Long text detected. Splitting text into segments for summary...';
                     // Split text into segments
                     const segments = [];
                     for (let i = 0; i < words.length; i += words_per_segment - overlap) {
