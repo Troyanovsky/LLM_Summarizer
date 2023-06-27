@@ -16,8 +16,10 @@
             <p class="py-0 my-0">Summarize content that you're too lazy to view</p>
             <div class="flex justify-center items-center w-full">
                 <label for="file-upload"
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose file</label>
-                <input type="file" id="file-upload" class="hidden" @change="onFileChange" accept=".wav,.mp3,.mp3,.m4a,.webm,.MPEG,.txt">
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">Choose
+                    file</label>
+                <input type="file" id="file-upload" class="hidden" @change="onFileChange"
+                    accept=".wav,.mp3,.mp3,.m4a,.webm,.MPEG,.txt">
                 <button class="px-4 py-2 bg-green-500 text-white rounded-lg ml-4" @click="transcribeAudio"
                     :disabled="!chosenFilePath">Transcribe audio</button>
             </div>
@@ -76,7 +78,7 @@
                                 this.transcriber = transcriber;
                             }
                             this.rawText = 'Transcribing...This may take a while especially for long audio files.';
-                            let output = await this.transcriber(url,{ chunk_length_s: 30 });
+                            let output = await this.transcriber(url, { chunk_length_s: 30 });
                             this.transcription = output.text;
                             if (this.transcription) {
                                 this.rawText = this.transcription;
@@ -94,6 +96,25 @@
                     const summary = await this.summarizeLongText(this.rawText);
                     this.rawText = summary;
                 },
+                isAlphabetic(str) {
+                    let substr;
+                    if (str.length <= 5) {
+                        substr = str
+                    } else {
+                        substr = str.substring(0, 5);
+                    }
+                    
+                    let count = 0;
+                    for (let i = 0; i < substr.length; i++) {
+                        // Check if the character is alphabetic
+                        if (/^[a-zA-Z]+$/.test(substr[i])) {
+                            count++;
+                        }
+                    }
+
+                    // Return true if more than half of the characters are alphabetic
+                    return count >= substr.length / 2;
+                },
                 async summarizeLongText(text) {
                     const words_per_segment = 1500; // Number of words in each segment
                     const overlap = 50; // Number of overlapping words between segments
@@ -102,7 +123,12 @@
                         return '';
                     }
 
-                    const words = text.split(' ');
+                    let words;
+                    if (this.isAlphabetic(text)) {
+                        words = text.split(/[\s,:;.!?-]+/); // Split by whitespace, comma, colon, semicolon, period, exclamation mark, question mark, or dash
+                    } else {
+                        words = text.split(''); // Split by character
+                    }
 
                     if (words.length <= 1500) {
                         const summary = await this.summarize_short_text(text);
